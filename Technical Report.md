@@ -70,6 +70,8 @@ Given that the cleaned dataset contains approximately 4.5 million rows, running 
 
 We decided to use approximately 5% samples of our total dataset of 4.5 million rows, which gives us around 200,000 data points. We believe this is a sufficient representative sample of our data given the extremely large dataset. To further ensure representativeness, we used stratified sampling in selecting the 200,000 rows. We chose two characteristics for our stratification: quarter of the year and subreddit. Disproportionate sampling was done on the quarters of the year, which involved taking an equal number of rows from each quarter of the year, as the data will undergo quarterly temporal analysis. We also performed proportionate sampling for the subreddits, where the original subreddit proportions were preserved, ensuring that the subset closely reflects the characteristics of the full dataset.
 
+The final stratified sample can be found in the ```sampled_data.csv``` file.
+
 ### 3.3 Classification
 The various classification models were explored and evaluated in the ```classification.ipynb``` notebook.
 
