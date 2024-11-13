@@ -68,9 +68,9 @@ The same basic text cleaning steps were applied to the Jigsaw dataset to ensure 
 #### 3.2.4 Data Sampling
 Given that the cleaned dataset contains approximately 4.5 million rows, running models on the entire dataset would be time-prohibitive. Therefore, we opted to work with a representative subset to achieve faster processing while maintaining accuracy.
 
-To determine the optimal sample size, we applied Cochran’s sample size formula, selecting a 99% confidence level and a 1% margin of error. Using a population size of 4.5 million, the resulting ideal sample size was approximately 17,000 rows, which we rounded up to 20,000 for greater reliability.
+To determine the optimal sample size, we applied Cochran’s sample size formula, selecting a 99% confidence level and a 1% margin of error. Using a population size of 4.5 million, the resulting ideal sample size was approximately 17,000 rows, which we rounded up to 200,000 for greater reliability.
 
-To ensure representativeness, we used stratified sampling to select the 20,000 rows. We chose two characteristics for our stratification: quarter of the year and subreddit. Disproportionate sampling was done on the quarters of the year, which involved taking an equal number of rows from each quarter of the year, as the data will undergo quarterly temporal analysis. We also performed proportionate sampling for the subreddits, where the original subreddit proportions were preserved, ensuring that the subset closely reflects the characteristics of the full dataset.
+To ensure representativeness, we used stratified sampling to select the 200,000 rows. We chose two characteristics for our stratification: quarter of the year and subreddit. Disproportionate sampling was done on the quarters of the year, which involved taking an equal number of rows from each quarter of the year, as the data will undergo quarterly temporal analysis. We also performed proportionate sampling for the subreddits, where the original subreddit proportions were preserved, ensuring that the subset closely reflects the characteristics of the full dataset.
 
 ### 3.3 Classification
 The various classification models were explored and evaluated in the ```classification.ipynb``` notebook.
@@ -122,7 +122,7 @@ We determined the optimal threshold score to be 0.936, which allowed us to class
 ### 3.4 Topic Modeling
 For topic modelling, we focused on analysing comments which have been classified as toxic by our classification model. By performing topic modelling, we can uncover the underlying themes and patterns within the negative discourse on Reddit and subsequently better understand the reasons, triggers and contexts behind toxic behaviour on Reddit and the change in toxicity over the years. 
 
-We chose 2 algorithms for Topic Modelling – Latent Dirichlet Allocation (LDA) and BERTopic. These models were chosen for their suitability to handle large and unstructured datasets like Reddit comments. We applied fine tuned versions of both models on the toxic comments and compared their coherence scores, diversity scores and topic labels to select the model that we would be using for further analysis of the dataset. 
+We chose 2 algorithms for Topic Modelling – Latent Dirichlet Allocation (LDA) and BERTopic. These models were chosen as they are widely used for topic modelling tasks. We applied fine tuned versions of both models on the toxic comments and compared their coherence scores, diversity scores and topic labels to select the model that we would be using for further analysis of the dataset. 
 
 The steps involving topic modelling can be found in the ```topic_modelling.ipynb``` notebook.
 
@@ -181,7 +181,7 @@ To do so, we varied the number of topics in each run, calculating the coherence 
 ##### 3.4.5.2 Training of the BERTopic model
 For BERTopic, we experimented with different embedding models and the most important hyperparameters which are the _n_neighbors_ and _n_components_ parameters in UMAP, the _min_cluster_size_ parameter in HDBSCAN, the _min_df_ parameter in the CountVectorizer as well as the _top_n_words_ parameter in the BERTopic.
 
-The embedding models that we tried are the ```all-MiniLM-L6-v2``` model, which is the default embedding model, the ```paraphrase-MiniLM-L6-v2``` model and the ```all-mpnet-base-v2``` model. We ended up choosing the ```paraphrase-MiniLM-L6-v2``` model as it gives the most interpretable topic labels. 
+The embedding models that we tried are the ```all-MiniLM-L6-v2``` model, which is the default embedding model, the ```paraphrase-MiniLM-L6-v2``` model and the ```all-mpnet-base-v2``` model. We ended up using either the ```all-MiniLM-L6-v2``` or ```paraphrase-MiniLM-L6-v2``` model depending on the topic labels it gave us. 
 
 The _n_neighbors_ parameter in UMAP is the number of neighbouring sample points used when making manifold approximation. Decreasing this value results in a more local structure, while increasing this value captures a more global structure, which often results in larger clusters being created. On the other hand, the _min_cluster_size_ parameter in HDBSCAN is the minimum size a final cluster can be which has a direct impact on the number of topics that will be generated. We tried various different sets of values for these two parameters and manually evaluated the topic labels based on interpretability.
 
@@ -399,6 +399,47 @@ Several promising areas remain for future exploration, particularly with the int
 While this project focused on toxicity within Singapore subreddit communities, expanding the analysis to include other popular social media platforms such as Facebook, Instagram, and TikTok could provide a broader understanding of toxicity trends on social media. These three platforms were noted in MDDI’s survey to have the highest rates of people encountering harmful content on them, and each have different user demographics, interaction styles, and content moderation policies that might reveal unique insights into online toxic behaviour. 
 
 **Recommendation**: Future iterations could incorporate data from Facebook, Instagram, and TikTok. This would allow for cross-platform comparisons and a more comprehensive view of social media toxicity, while also enabling more tailored and effective recommendations for each platform if necessary.
+
+## Section 5: References
+1. Silviatti. (n.d.). GitHub - silviatti/topic-model-diversity: A collection of topic diversity measures for topic modeling. GitHub. https://github.com/silviatti/topic-model-diversity
+2. Röder, M., Leipzig University, R&D, Unister GmbH, Both, A., R&D, Unister GmbH, Hinneburg, A., & Martin-Luther-University. (2015). Exploring the Space of Topic Coherence Measures. In WSDM’15 (pp. 1–15) [Journal-article]. ACM. https://svn.aksw.org/papers/2015/WSDM_Topic_Evaluation/public.pdf
+3. Pedro, J. (2022, January 15). Understanding Topic Coherence Measures - Towards Data Science. Medium. https://towardsdatascience.com/understanding-topic-coherence-measures-4aa41339634c
+4. Wang, S., Manning, C. D., Department of Computer Science, & Stanford University. (2012). Baselines and Bigrams: Simple, Good Sentiment and Topic Classification. In Department of Computer Science, Stanford University [Journal-article]. https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf
+
+## Section 6: Appendix
+### 6.1 How coherence scores are calculated
+For the calculation of coherence score, 4 steps are involved (Pedro, 2022). The figure below shows a summary of it.
+
+![Figure 12](https://github.com/user-attachments/assets/3405bac1-c58a-4cc6-a8c1-f4872fe168d3)
+
+**Figure 12:** Summary of how the coherence score is calculated
+
+The first step is segmentation, which creates pairs of word subsets from the most representative words of a topic. The segmentation can be one-one or one-all. The figure below illustrates the differences.
+
+![Figure 13](https://github.com/user-attachments/assets/a46bc7ac-bdac-4f4c-84f7-157099d90fc4)
+
+**Figure 13:** Difference between one-one and one-all segmentation
+
+The second step is the occurrence probability calculation of words. There are three techniques, namely Pbd, Pbs and Psw, which calculate occurrence probabilities of words in documents, sentences and sliding windows respectively. 
+
+The third step involves using confirmation measures, which measures how frequently the pairs of word subsets appear together using the probabilities from the previous step. An example is shown below. 
+
+![Figure 14](https://github.com/user-attachments/assets/d60a742e-c984-4f3e-bf0e-89f621bd29f7)
+
+**Figure 14:** An Example
+
+It can either be direct or indirect. Indirect confirmation measures are typically better as they highlight some relations that direct methods can miss. Direct measures will not be able to capture this relationship but indirect measures can. An example is illustrated below.
+
+![Figure 15](https://github.com/user-attachments/assets/f697c356-d968-48b6-ac7b-13a03cbf8801)
+
+**Figure 15:** An example to show how indirect confirmation measures work
+
+The last step, aggregation, takes all the values calculated in the previous step and aggregates them into a single value, which is our final topic coherence score. 
+
+![Figure 16](https://github.com/user-attachments/assets/4d4e2510-36b2-4c92-842f-f56f70fd6682)
+
+**Figure 16:** A detailed example to show how coherence scores are calculated
+
 
 
 
