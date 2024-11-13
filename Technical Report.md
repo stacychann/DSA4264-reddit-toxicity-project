@@ -68,9 +68,7 @@ The same basic text cleaning steps were applied to the Jigsaw dataset to ensure 
 #### 3.2.4 Data Sampling
 Given that the cleaned dataset contains approximately 4.5 million rows, running models on the entire dataset would be time-prohibitive. Therefore, we opted to work with a representative subset to achieve faster processing while maintaining accuracy.
 
-To determine the optimal sample size, we applied Cochran’s sample size formula, selecting a 99% confidence level and a 1% margin of error. Using a population size of 4.5 million, the resulting ideal sample size was approximately 17,000 rows, which we rounded up to 200,000 for greater reliability.
-
-To ensure representativeness, we used stratified sampling to select the 200,000 rows. We chose two characteristics for our stratification: quarter of the year and subreddit. Disproportionate sampling was done on the quarters of the year, which involved taking an equal number of rows from each quarter of the year, as the data will undergo quarterly temporal analysis. We also performed proportionate sampling for the subreddits, where the original subreddit proportions were preserved, ensuring that the subset closely reflects the characteristics of the full dataset.
+We decided to use approximately 5% samples of our total dataset of 4.5 million rows, which gives us around 200,000 data points. We believe this is a sufficient representative sample of our data given the extremely large dataset. To further ensure representativeness, we used stratified sampling in selecting the 200,000 rows. We chose two characteristics for our stratification: quarter of the year and subreddit. Disproportionate sampling was done on the quarters of the year, which involved taking an equal number of rows from each quarter of the year, as the data will undergo quarterly temporal analysis. We also performed proportionate sampling for the subreddits, where the original subreddit proportions were preserved, ensuring that the subset closely reflects the characteristics of the full dataset.
 
 ### 3.3 Classification
 The various classification models were explored and evaluated in the ```classification.ipynb``` notebook.
