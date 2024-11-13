@@ -29,20 +29,20 @@ The final measure of success will involve delivering clear recommendations for t
 ### 2.3 Assumptions
 For our analysis and findings to be valid, several key assumptions have been made in this project:
 
-#### 2.3.1 Subreddit representativeness 
+**Subreddit representativeness**
 This project assumes that the selected Singapore-specific subreddits reflect broader sentiments and discussions within Singapore’s social media landscape. If this is not the case, the insights derived may be limited in their ability to inform wider social or policy recommendations regarding toxicity in social media.
 
-#### 2.3.2 Consistent subreddit activity and demographics
+**Consistent subreddit activity and demographics**
 We assume that the activity levels and demographic composition of the three subreddit communities analysed will remain relatively consistent over the given period. Significant shifts in user engagement such as in the level or nature of activity could impact the observed trends, potentially skewing toxicity levels and limiting the accuracy of conclusions drawn regarding the evolution of toxic content.
 
-#### 2.3.3 Data quality and completeness
+**Data quality and completeness**
 It is assumed that the Reddit dataset provided accurately represents the conversations within these communities without significant missing data or technical issues such as gaps in data collection. If there are gaps or data quality issues, it could lead to misrepresentation of toxicity trends, affecting both the insights and recommendations generated. 
 
 ## Section 3: Methodology
 ### 3.1 Technical Assumptions
 In this subsection, we will outline key assumptions in our methodology. These assumptions ensure that our models and evaluation metrics are suitable and effective given our Reddit dataset’s characteristics and project goals.
 
-#### 3.1.1 Transferability of model and relevance of jigsaw data for reddit toxicity classification
+**Transferability of model and relevance of jigsaw data for reddit toxicity classification**
 We assume that pretrained BERT models, fine tuned on the Jigsaw dataset, are suitable for toxicity classification in our Reddit dataset. This assumption is based on the idea that the language patterns and toxic discourse in the Jigsaw dataset share significant overlap with those in the Reddit dataset, allowing the model’s learned representations to generalise effectively. While Reddit’s tone and style may differ slightly, we expect the toxic language patterns to be sufficiently similar for the pretrained models to perform well in providing reliable classification on our Reddit data. Future validation steps such as testing a sample of labelled Reddit comments could confirm model accuracy on this specific domain, if necessary.
 
 ### 3.2 Data
@@ -102,6 +102,8 @@ The table above summarises the results obtained when training was performed on b
 Therefore, we decided to not upsample the data, mainly because we felt that achieving a good balance between the recall and precision scores is important.
 
 #### 3.3.2 Evaluation
+We decided to use AUC-ROC score as the metric of evaluation across the models as it is an effective indicator that is unaffected by imbalance in the dataset. It evaluates the true positive rate against the false positive rate rather than relying solely on accuracy, which could be misleading in imbalanced datasets. 
+
 After labelling the test set of the Jigsaw dataset using the different models, we checked against the truth label and calculated the AUC-ROC scores as shown in the table below.
 
 **AUC-ROC Score (rounded to 3 s.f.)**
@@ -231,6 +233,173 @@ Our first approach tracks the percentage of toxic comments per quarter to identi
 ![Figure 4](https://github.com/user-attachments/assets/0fe8c622-c141-481a-ae57-49d0374c3991)
 
 **Figure 4:** Percentage of Toxic Comments per Quarter
+
+As seen in Figure 4, though there have been occasional dips in toxicity between some quarters, there is a definite upward trend in the percentage of toxic comments over the years, indicating that toxic discourse has become a more prominent feature in online discussions on Reddit. For example, the percentage of toxic comments increased from 3.37% in the first quarter of 2020 to 5.74% in the last quarter of 2023, representing a 70.3% increase in the share of toxic comments over this period. This suggests that the increased toxicity is not merely a product of heightened overall activity, but rather that toxic behaviour has become a larger share of the conversation within these subreddits. 
+
+##### 4.1.1.2 Quarterly Trends in Toxic Comments by Subreddit 
+Our second approach for analysis looked at the quarterly trends in toxic comments by the three different subreddits, r/Singapore, r/SingaporeRaw, and r/SingaporeHappenings. Our sampled data also involved stratification by subreddit, where we kept the ratio of comments across different subreddits consistent. This allowed us to observe both the absolute counts and percentages of toxic comments within each subreddit, providing a deeper understanding of the toxic discourse between communities.
+
+![Figure 5](https://github.com/user-attachments/assets/9c3fb3fc-fa4b-4913-abb3-1b7ad70e7f3f)
+
+**Figure 5:** Count of Toxic Comments per Subreddit by Quarter
+
+Analysing the count of toxic comments per subreddit, as seen in Figure 5, r/Singapore contributes to the majority of toxic comments among the three subreddits. This can be attributed to its significantly larger community of approximately 1.5 million members, compared to r/SingaporeRaw with 78,000 members and r/SingaporeHappenings with 43,000 members. Despite this, the upward trend in toxic comments in later quarters is largely driven by increases in toxic comments in r/SingaporeRaw and r/SingaporeHappenings. These smaller subreddits, with their more concentrated communities, have seen notable spikes in toxicity, contributing disproportionately to the overall rise in toxic discourse over time.
+
+![Figure 6](https://github.com/user-attachments/assets/b74a5f13-5111-417f-ad25-e902fd335d87)
+
+**Figure 6:** Percentage of Toxic Comments per Subreddit by Quarter
+
+In addition, we also analysed the percentage of toxic comments within each subreddit to understand how toxicity manifests relative to the total volume of comments. As shown in Figure 6, r/SingaporeHappenings had the highest average percentage of toxic comments at 7.71%, followed by r/SingaporeRaw at 6.90%, then r/Singapore at 3.41%. The higher percentage of toxicity in r/SingaporeHappenings and r/SingaporeRaw may be due to the presence of less filtered or more contentious content in these subreddits. In contrast, r/Singapore, despite contributing the largest share of toxic comments, had the lowest percentage of toxic comments. This is likely due to its much larger user base as well as more rules and moderation.
+
+This highlights the varying levels of toxicity across different communities and suggests that the nature of discussions within each subreddit plays a significant role in shaping the frequency of toxic comments.
+
+#### 4.1.2 Drivers for Toxicity
+Using the models, we can identify and breakdown specific factors for the increase of toxicity of Reddit. 
+
+After establishing that there is a rise in toxicity on Reddit, we now have to find the key drivers for this trend. We used BERTopic to uncover prevalent themes within toxic comments. The goal was to identify key drivers behind this trend by experimenting with various BERTopic parameters to balance topic coherence and diversity, thus ensuring meaningful and interpretable topics that capture a wide range of toxic behaviours.
+
+We optimised five models, each focused on understanding toxic comment trends in aggregate and year-by-year from 2020 to 2023. The table below summarises the parameters and performance metrics for each model.
+
+| Model                      | UMAP                           | HDBSCAN               | Coherence Score | Diversity Score |
+|----------------------------|--------------------------------|-----------------------|-----------------|-----------------|
+| Overview of Toxic Comments | n_neighbors=10, n_components=5 | min_cluster_size = 30 | 0.5485          | 0.8675          |
+| 2020 Toxic Comments        | n_neighbors=10, n_components=5 | min_cluster_size = 15 | 0.4658          | 0.8646          |
+| 2021 Toxic Comments        | n_neighbors=10, n_components=5 | min_cluster_size = 22 | 0.3825          | 0.8747          |
+| 2022 Toxic Comments        | n_neighbors=15, n_components=5 | min_cluster_size = 20 | 0.5187          | 0.8835          |
+| 2023 Toxic Comments        | n_neighbors=15, n_components=5 | min_cluster_size = 20 | 0.5961          | 0.8545          |
+
+### 4.2 Discussion
+Using the optimised BERTopic models, we identified several recurring themes and shifts in toxicity over the years.
+
+#### 4.2.1 Overview of Topics
+We first applied BERTopic on a sample of toxic comments to obtain an overview of the themes in toxicity. 
+
+![Figure 7](https://github.com/user-attachments/assets/1f200873-717d-4b58-bf15-c657cc10d495)
+
+**Figure 7:** BERTopic Overview of Toxic Comments
+
+From the results, we are able to get a broad picture of toxic themes, including hate speech, inflammatory language, and derogatory terms targeted at specific groups. Key drivers of general toxicity were identifiable here, revealing patterns like xenophobia, politics, Covid-19 , transportation and global conflicts. 
+
+#### 4.2.1 Topics by Year 
+
+![Figure 8](https://github.com/user-attachments/assets/c3520d74-62e2-4ec7-ac2b-2dc85057ceab)
+
+**Figure 8:** BERTopic on 2020 Comments
+
+Toxic themes in 2020 appeared to be heavily influenced by political and social events, such as the 2020 Parliamentary General Election. Themes of xenophobia were also uncovered, as comments contained hostility towards various groups. 
+
+![Figure 9](https://github.com/user-attachments/assets/09b8e190-f5ea-44a8-b549-91b4f32b9a3a)
+
+**Figure 9:** BERTopic on 2021 Comments
+
+2021 indicated a period where toxicity was more varied, likely fueled by residual pandemic effects and evolving political landscapes. Themes included workplace dissatisfaction and continued xenophobia. The model also captured political comments,  as well as frustration regarding transportation. 
+
+![Figure 10](https://github.com/user-attachments/assets/94a44dc8-d4d6-4d34-83e8-b87c09831543)
+
+**Figure 10:** BERTopic on 2022 Comments
+
+In 2022, there are continued themes of xenophobia, as comments were found targeting specific groups of people. The model also captured comments on transportation, reflecting dissatisfaction. There are also sentiments regarding the COVID-19 pandemic, showing that pandemic-related frustrations continued into 2022.
+
+![Figure 11](https://github.com/user-attachments/assets/59bf261b-201d-40a1-99b6-4af97bf126f8)
+
+**Figure 11:** BERTopic on 2023 Comments
+
+In 2023, a huge portion of the toxic comments are political, commenting on political parties in Singapore as well as the political situation in other countries. There is continued dissatisfaction raised on public transportation and sentiments of xenophobia.
+
+#### 4.2.2 Insights from Results
+**Toxicity in Singapore Issues**
+
+Our analysis revealed that topics like “vote_political_opposition_election” showed a concentration of toxicity around political discussions, particularly the 2020 Parliamentary General Election and societal issues. These discussions contained hostile and polarised opinions, highlighting a need for structured, moderated platforms to handle sensitive political and societal discourse.
+
+Another insight emerged from topics such as "car_driver_bus_grab" and "driver_car_cyclist_cars", where users expressed significant frustration around transportation, covering issues like bus services, car-sharing and road safety. The intensity of negative sentiments in these topics suggests communication gaps and misinformation, emphasising the importance of creating dedicated feedback channels to allow users to share constructive feedback, potentially reducing toxicity arising from dissatisfaction. 
+
+**Toxicity on Sensitive Topics**
+
+Topics like "hk_malaysian_china_ignorant" and "racist_racism_america_hate" reveal that xenophobia and racial biases were prevalent sources of toxicity. These discussions often contained misinformation, stereotypes, and prejudiced language, which can fuel misunderstandings and conflicts between different cultural or ethnic groups. This xenophobic rhetoric, which often emerges in polarised or nationalistic discussions, highlights the need for interventions to address harmful stereotypes and prevent the spread of divisive narratives.
+
+Additionally, some clusters, such as "fat_husband_woman_funny" and "hard_dicks_grip_eat," suggest casual disrespect and insensitive language that contribute to a toxic environment. These topics reflect a normalisation of harmful humour or insensitive remarks about people based on personal characteristics, contributing to an unwelcoming platform atmosphere.
+
+The presence of such toxic themes suggests that users may be reinforcing negative biases, potentially harming social cohesion and creating a hostile environment for certain communities. It is crucial that we handle these topics tactfully to prevent further aggravating the sentiments and situation.  
+
+**Creating a Safer Online Environment**
+
+Through Topic Modelling, we also uncovered many toxic comments not tied to specific topics, characterised by hateful and hostile language. With easy access to social media, children and teens are increasingly exposed to explicit language, violence, misinformation, and toxic discourse. Without adequate protection, they may be unduly influenced by this content, shaping their perceptions, behaviours, and values in ways that may be detrimental to their mental health, personal development, and social interactions.
+
+Hence, it is vital to create safer online environments for children and teens to protect young users from harmful content.
+
+### 4.3 Policy Recommendations
+Our analysis of Reddit toxicity highlights several focal areas where policy interventions could reduce negative online discourse. We propose the following initiatives:
+
+#### 4.3.1 Targeting Local Topics
+**Ask Me Anything Sessions**
+
+To reduce toxicity related to Singapore issues, we recommend hosting regular AMA sessions on Reddit featuring government officials to address citizens’ concerns directly. This strategy can improve transparency and correct misunderstandings that often fuel toxicity.
+- **Purpose**: Bridge communication gaps in policy-making decisions, improve transparency and reduce misinformation
+- **Approach**: Monthly/quarterly AMA sessions moderated by subreddit moderators, focusing on high-toxicity topics identified through topic modelling (eg. National Service)
+- **Impact**: Build trust between the government and citizens and provide a channel for citizens to raise concerns and address frustrations that could otherwise lead to toxic discourse.
+- **Feasibility**: AMAs are already a popular feature on Reddit. It also requires low-cost and minimal set up.
+
+#### 4.3.2 Targeting Sensitive Topics
+**Flagging Fake News**
+
+To combat the spread of misinformation that often fuels sensitive, polarising discussions, we recommend implementing a system to flag fake news on Reddit.
+- **Purpose**: Minimise toxic discussions that arise from misinformation and fake news, which often amplify misunderstandings and frustration on sensitive topics like race or global politics.
+- **Approach**: Implement a misinformation flagging system similar to Twitter’s, where posts containing misleading information are labelled and linked to reliable sources for context.
+- **Impact**: Directs users to accurate information, helping to reduce toxicity rooted in misinformation and allowing users to make more informed, constructive contributions to discussions.
+- **Feasibility**: Reddit can look to Twitter’s approach of tagging misinformation.
+
+
+**Auto Slow-Mode**
+
+To help reduce impulsive and reactive toxicity in sensitive discussions, we propose implementing an auto slow-mode feature on Reddit.
+- **Purpose**: Decrease escalation of toxicity by slowing down reactive or impulsive replies in discussions on sensitive topics
+- **Approach**: Automatically activate a “slow-mode” on sensitive threads, limiting users from posting consecutive comments within a set time, for instance a 1-minute delay per post.
+- **Impact**: Slowing conversation pace regarding sensitive topics can encourage more thoughtful responses, discourage emotionally charged reactions, and improve discussion quality.
+- **Feasibility**: Slow-mode is already an existing feature on other online community platforms such as Discord, that Reddit can adapt from.
+
+**Toxicity Prompt Alerts**
+
+To help users self-moderate and reduce unintentional toxic language, we propose adding real-time toxicity prompts while users type comments.
+- **Purpose**: Encourage users to use thoughtful, respectful language by alerting them to potentially harmful content before posting.
+- **Approach**: Integrate a feature that detects aggressive or inflammatory language as users type, displaying a reminder about the platform’s guidelines or suggesting alternative phrasing _(e.g. “Your comment contains language that may come across as harmful. Consider revising for a more respectful conversation.”)_
+- **Impact**: Prompts users to rethink their language, fostering a more constructive and respectful community.
+- **Feasibility**: LLMs can be used to detect toxic language in comments.
+
+#### 4.3.3 Creating a Safer Online Environment for Youths
+To create a safer online environment for children and teens, especially on platforms like Reddit, it is essential to combine technical solutions with educational efforts that equip young users with tools for responsible engagement. 
+
+**Child Safety Mode**
+
+To protect young users on Reddit, we propose establishing a “Child Safety Mode” that filters out toxic and mature content for users under 18.
+- **Purpose**: Shield young users from inappropriate or toxic content on Reddit.
+- **Approach**: Collaborate with Reddit to create a “Child Safety Mode” that automatically filters threads or comments with high toxicity levels or sensitive topics not suited for younger audiences. The feature could be enabled by default for users who are not logged in. 
+- **Impact**: Provides a safer environment for young users, allowing them to participate without risk of exposure to toxicity
+- **Feasibility**: Build on existing content filtering tools such as Reddit’s NSFW filter. “Child Safety Mode” will also be similar to Youtube’s “Youtube Kids”.
+
+**Education Campaigns**
+
+To promote responsible social media usage, we suggest integrating digital citizenship and media literacy lessons into school curriculums through partnerships with the Ministry of Education (MOE).
+- **Purpose**: Equip students with skills to navigate social media and online discussions responsibly and constructively.
+- **Approach**: Collaborate with the MOE to incorporate digital citizenship and media literacy into Character and Citizenship Education (CCE) lessons. Topics could include recognising toxic content, practising respectful online engagement, and understanding the real-world impact of online interactions. 
+- **Impact**: Helps students develop positive online habits, reduce engagement in toxic behaviour, and cultivate empathy in digital spaces.
+- **Feasibility**: Builds on existing CCE lesson structures, making integration straightforward and manageable within current educational frameworks.
+
+### 4.4 Future Works
+#### 4.4.1 Improve data quality and coverage
+Our current dataset comprises comments without the original Reddit submission posts. Including submission content would provide the broader context often essential for accurate toxicity detection, especially in discussions where the original post sets the tone or introduces sensitive topics. Although our dataset initially contained emojis and non-English languages like Chinese, these were removed as noise due to limitations in our current techniques for multilingual and emoji-based toxicity analysis. However, including these features could significantly enhance the model’s performance, especially in a culturally diverse context like in Singapore. 
+
+**Recommendation**: Work with Reddit to expand data collection to include original post content alongside comments, and explore advanced techniques to process non-English text and emojis. This will enable more context-aware toxicity detection and support more nuanced analyses, particularly or high-risk topics sensitive to cultural or linguistic context. 
+
+#### 4.4.2 Enhancing toxicity analysis
+Several promising areas remain for future exploration, particularly with the integration of large language models (LLMs) to improve both toxicity classification and comment summarization. LLMs could enable accurate toxicity detection across multiple languages, allowing us to include previously excluded data, such as non-English comments, and handle more subtle toxicity markers like sarcasm and sentiment nuances. Additionally, using LLMs for comment summarisation after topic modelling could provide deeper insights as current topic modelling results are broad and don’t fully reveal the specific issues within each topic. Lastly, exploring specific toxic labels such as ```severe toxic```, ```threat```, ```insult```, ```identity hate``` and ```obscene``` may yield a more granular understanding of toxicity within the reddit community.
+
+**Recommendation**: Plan future iterations to incorporate LLMs for multilingual toxicity detection, nuanced sentiment analysis and comment summarisation. Expanding analysis to explore specific toxic labels could provide a more detailed picture of the discourse, enabling more precise and effective intervention strategies.
+
+#### 4.4.3 Expansion to other social media platforms
+While this project focused on toxicity within Singapore subreddit communities, expanding the analysis to include other popular social media platforms such as Facebook, Instagram, and TikTok could provide a broader understanding of toxicity trends on social media. These three platforms were noted in MDDI’s survey to have the highest rates of people encountering harmful content on them, and each have different user demographics, interaction styles, and content moderation policies that might reveal unique insights into online toxic behaviour. 
+
+**Recommendation**: Future iterations could incorporate data from Facebook, Instagram, and TikTok. This would allow for cross-platform comparisons and a more comprehensive view of social media toxicity, while also enabling more tailored and effective recommendations for each platform if necessary.
+
 
 
 
